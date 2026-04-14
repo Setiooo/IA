@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MBG · Kamera AI Pelaporan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --green-deep:   #052e16;
+      --green-dark:   #166534;
+      --green-mid:    #16a34a;
+      --green-light:  #4ade80;
+      --green-pale:   #dcfce7;
+      --green-ghost:  #f0fdf4;
+      --amber:        #f59e0b;
+      --red:          #ef4444;
+      --orange:       #f97316;
+      --blue:         #3b82f6;
+      --warn-bg:      #fef9c3;
+      --warn-border:  #fde047;
+      --warn-text:    #854d0e;
+      --text-main:    #1a2e1a;
+      --text-muted:   #4b7a4b;
+      --text-faint:   #a3c9a3;
+      --surface:      #ffffff;
+      --bg:           #f4faf5;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse 60% 40% at 80% 10%, #dcfce755 0%, transparent 60%),
+        radial-gradient(ellipse 50% 50% at 10% 90%, #bbf7d044 0%, transparent 60%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Sora', sans-serif;
+      padding: 24px 16px 40px;
+    }
+
+    /* ─── wrapper ─── */
+    .app {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* ─── top badge ─── */
+    .top-badge {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      border: 1.5px solid var(--green-pale);
+      border-radius: 14px;
+      padding: 11px 16px;
+      box-shadow: 0 2px 8px rgba(22,163,74,0.08);
+    }
+    .badge-left { display: flex; align-items: center; gap: 10px; }
+    .live-dot {
+      width: 9px; height: 9px; border-radius: 50%;
+      background: var(--green-mid);
+      box-shadow: 0 0 8px var(--green-mid);
+      animation: blink 1.4s ease-in-out infinite;
+    }
+    .badge-title { font-size: 13px; font-weight: 700; color: var(--green-dark); }
+    .badge-sub   { font-size: 10px; color: var(--text-faint); font-family: 'DM Mono', monospace; }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    /* ─── camera frame ─── */
+    .cam-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #111;
+      box-shadow: 0 10px 40px rgba(0,0,0,.18), 0 0 0 3px var(--green-pale);
+    }
+
+    /* fake food scene */
+    .scene {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 70% at 50% 50%, #f5f0e8 0%, #e8dcc8 55%, #d4c4a8 100%);
+    }
+    .plate {
+      position: absolute; top:50%; left:50%;
+      transform: translate(-50%,-50%);
+      width: 74%; aspect-ratio:1; border-radius:50%;
+      background: radial-gradient(circle, #fff 55%, #f0ece4 100%);
+      box-shadow: 0 6px 28px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.8);
+    }
+    .food { position: absolute; }
+    .f-nasi  { left:13%; top:16%; width:31%; height:33%; border-radius:50% 45% 55% 40%; background: radial-gradient(ellipse,#f7f2da 35%,#e6deba 100%); }
+    .f-ayam  { right:17%; top:13%; width:29%; height:31%; border-radius:40% 55% 45% 50%; background: radial-gradient(ellipse,#ca7250 20%,#a04830 85%); }
+    .f-sayur { left:19%; bottom:13%; width:27%; height:27%; border-radius:55% 40% 50% 45%; background: radial-gradient(ellipse,#4ade80 20%,#15803d 80%); }
+    .f-jeruk { right:21%; bottom:16%; width:22%; height:25%; border-radius:50%; background: radial-gradient(ellipse,#fb923c 30%,#ea6c0a 100%); }
+
+    /* scanline noise */
+    .noise {
+      position: absolute; inset: 0; pointer-events: none; z-index: 10;
+      background-image: repeating-linear-gradient(
+        0deg, transparent, transparent 3px,
+        rgba(0,0,0,.03) 3px, rgba(0,0,0,.03) 6px
+      );
+    }
+
+    /* corner brackets */
+    .corner { position:absolute; width:22px; height:22px; z-index:20; }
+    .corner::before,.corner::after { content:''; position:absolute; background: var(--green-mid); }
+    .corner.tl { top:12px; left:12px; }
+    .corner.tr { top:12px; right:12px; }
+    .corner.bl { bottom:12px; left:12px; }
+    .corner.br { bottom:12px; right:12px; }
+    .corner.tl::before,.corner.bl::before { left:0; width:2px; height:100%; }
+    .corner.tr::before,.corner.br::before { right:0; width:2px; height:100%; }
+    .corner.tl::after,.corner.tr::after   { top:0;  width:100%; height:2px; }
+    .corner.bl::after,.corner.br::after   { bottom:0; width:100%; height:2px; }
+
+    /* scan line */
+    .scan-line {
+      position: absolute; left:0; right:0; height:2px; z-index:15;
+      background: linear-gradient(90deg,transparent,var(--green-mid) 30%,var(--green-light) 50%,var(--green-mid) 70%,transparent);
+      box-shadow: 0 0 12px var(--green-light);
+      transition: top .018s linear;
+    }
+
+    /* HUD texts */
+    .hud { position:absolute; z-index:20; font-family:'DM Mono',monospace; font-size:9px; color:var(--green-mid); letter-spacing:.1em; opacity:.85; }
+    .hud.tl { top:12px; left:14px; display:flex; flex-direction:column; gap:3px; }
+    .hud.tr { top:12px; right:14px; text-align:right; }
+
+    /* scanning label */
+    .scan-label {
+      position: absolute; bottom:12px; left:14px; z-index:20;
+      display: flex; align-items:center; gap:6px;
+      font-family:'DM Mono',monospace; font-size:9px; color:var(--green-light); letter-spacing:.12em;
+    }
+    .spinner {
+      width:10px; height:10px;
+      border:1.5px solid rgba(74,222,128,.3);
+      border-top-color: var(--green-light);
+      border-radius:50%;
+      animation: spin .75s linear infinite;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* detection boxes */
+    .det-box {
+      position: absolute; border:2px solid; border-radius:7px;
+      z-index:20; cursor:pointer;
+      transition: background .2s;
+      animation: boxPop .4s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes boxPop { from{opacity:0;transform:scale(.75)} to{opacity:1;transform:scale(1)} }
+    .det-label {
+      position: absolute; top:-26px; left:-2px;
+      font-family:'Sora',sans-serif; font-size:9px; font-weight:700;
+      padding:3px 8px; border-radius:5px; white-space:nowrap; color:#fff;
+    }
+    .det-conf {
+      position: absolute; bottom:-19px; right:-2px;
+      font-family:'DM Mono',monospace; font-size:9px; font-weight:500;
+    }
+
+    /* capture flash */
+    .flash {
+      position:absolute; inset:0; background:#fff; z-index:30;
+      animation: flashOut .4s ease-out forwards;
+    }
+    @keyframes flashOut { from{opacity:.95} to{opacity:0} }
+
+    /* confirmed overlay */
+    .confirmed-overlay {
+      position: absolute; inset:0; background:rgba(5,46,22,.82);
+      display:flex; align-items:center; justify-content:center;
+      flex-direction:column; gap:10px; z-index:28;
+      animation: fadeIn .35s ease both;
+    }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .confirmed-overlay .big-check { font-size:46px; }
+    .confirmed-overlay .co-title  { font-size:15px; font-weight:700; color:var(--green-light); }
+    .confirmed-overlay .co-sub    { font-family:'DM Mono',monospace; font-size:10px; color:#86efac; letter-spacing:.1em; }
+
+    /* ─── status panel ─── */
+    .status-panel {
+      background: var(--surface);
+      border: 1.5px solid var(--green-pale);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.05);
+    }
+    .section-label {
+      font-family:'DM Mono',monospace;
+      font-size:9px; font-weight:600;
+      letter-spacing:.16em; text-transform:uppercase;
+      color: var(--green-light);
+      margin-bottom: 6px;
+    }
+    .divider { height:1px; background: var(--green-ghost); }
+
+    /* chips */
+    .chips { display:flex; flex-wrap:wrap; gap:6px; }
+    .chip {
+      display:flex; align-items:center; gap:4px;
+      padding:4px 10px; border-radius:20px; border:1.5px solid;
+      font-size:10px; font-weight:600;
+      opacity:0;
+      animation: chipPop .4s cubic-bezier(.34,1.56,.64,1) forwards;
+    }
+    @keyframes chipPop { from{opacity:0;transform:scale(.65)} to{opacity:1;transform:scale(1)} }
+
+    /* caption */
+    .caption-text { font-size:12px; color:var(--text-main); line-height:1.65; }
+    .cursor {
+      display:inline-block; width:2px; height:12px;
+      background:var(--green-mid); margin-left:2px; vertical-align:middle;
+      animation: blink .65s infinite;
+    }
+
+    /* gizi bars */
+    .gizi-row { display:flex; flex-direction:column; gap:8px; }
+    .gizi-item { display:flex; align-items:center; gap:8px; }
+    .gizi-name { font-size:10px; color:var(--text-muted); width:95px; flex-shrink:0; font-weight:500; }
+    .gizi-track { flex:1; height:7px; background:var(--green-ghost); border-radius:10px; overflow:hidden; }
+    .gizi-fill  { height:100%; border-radius:10px; width:0; transition: width 1s cubic-bezier(.34,1.2,.64,1); }
+    .gizi-status { font-size:12px; width:18px; text-align:center; }
+
+    /* score badge */
+    .score-badge {
+      display:flex; align-items:center; justify-content:space-between;
+      background: linear-gradient(135deg, var(--green-deep) 0%, var(--green-dark) 100%);
+      border-radius:12px; padding:13px 18px;
+    }
+    .score-label { font-size:10px; color:#86efac; font-weight:600; letter-spacing:.06em; }
+    .score-sub   { font-size:9px; color:#86efac; opacity:.65; margin-top:2px; font-family:'DM Mono',monospace; }
+    .score-value { font-size:28px; font-weight:700; color:var(--green-light); font-family:'DM Mono',monospace; }
+
+    /* warning */
+    .warn-bar {
+      display:flex; align-items:center; gap:10px;
+      background:var(--warn-bg); border:1.5px solid var(--warn-border);
+      border-radius:10px; padding:10px 14px;
+    }
+    .warn-text { font-size:11px; color:var(--warn-text); font-weight:500; }
+
+    /* scanning placeholder */
+    .scanning-msg {
+      text-align:center; font-size:12px; color:var(--text-muted);
+      font-weight:500; padding:4px 0;
+    }
+
+    /* ─── buttons ─── */
+    .btn-primary {
+      width:100%; padding:14px;
+      background: linear-gradient(135deg,var(--green-mid) 0%,var(--green-dark) 100%);
+      border:none; border-radius:13px; color:#fff;
+      font-family:'Sora',sans-serif; font-size:13px; font-weight:600;
+      letter-spacing:.04em; cursor:pointer;
+      box-shadow: 0 4px 16px rgba(22,163,74,.32);
+      transition: transform .18s, box-shadow .18s;
+    }
+    .btn-primary:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 7px 22px rgba(22,163,74,.4); }
+    .btn-primary:disabled { opacity:.42; cursor:not-allowed; }
+
+    .btn-secondary {
+      width:100%; padding:12px;
+      background: var(--surface); border:1.5px solid var(--green-pale);
+      border-radius:13px; color:var(--text-muted);
+      font-family:'Sora',sans-serif; font-size:12px; font-weight:600;
+      cursor:pointer; transition: border-color .18s, color .18s;
+    }
+    .btn-secondary:hover { border-color:var(--green-mid); color:var(--green-mid); }
+
+    /* privacy */
+    .privacy {
+      font-family:'DM Mono',monospace; font-size:9px;
+      color:var(--text-faint); text-align:center;
+      letter-spacing:.06em; line-height:1.7;
+    }
+
+    /* hidden helper */
+    .hidden { display:none !important; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- top badge -->
+  <div class="top-badge">
+    <div class="badge-left">
+      <div class="live-dot"></div>
+      <div>
+        <div class="badge-title">🍱 Kamera AI · MBG</div>
+      </div>
+    </div>
+    <div style="text-align:right">
+      <div class="badge-sub" style="color:var(--green-mid);font-size:10px">Makan Bergizi Gratis</div>
+      <div class="badge-sub">Verifikasi Otomatis</div>
+    </div>
+  </div>
+
+  <!-- camera frame -->
+  <div class="cam-frame" id="camFrame">
+
+    <!-- scene -->
+    <div class="scene">
+      <div class="plate"></div>
+      <div class="food f-nasi"></div>
+      <div class="food f-ayam"></div>
+      <div class="food f-sayur"></div>
+      <div class="food f-jeruk"></div>
+    </div>
+    <div class="noise"></div>
+
+    <!-- corners -->
+    <div class="corner tl"></div><div class="corner tr"></div>
+    <div class="corner bl"></div><div class="corner br"></div>
+
+    <!-- HUD -->
+    <div class="hud tl">
+      <span>● REC</span>
+      <span id="hudDate"></span>
+    </div>
+    <div class="hud tr"><span>GPS ✓</span></div>
+
+    <!-- scan line -->
+    <div class="scan-line" id="scanLine"></div>
+
+    <!-- scanning label -->
+    <div class="scan-label" id="scanLabel">
+      <div class="spinner"></div>
+      MENDETEKSI KOMPONEN GIZI...
+    </div>
+
+    <!-- detection boxes (injected by JS) -->
+    <div id="boxLayer"></div>
+
+    <!-- confirmed overlay -->
+    <div class="confirmed-overlay hidden" id="confirmedOverlay">
+      <div class="big-check">✅</div>
+      <div class="co-title">Laporan Tersimpan</div>
+      <div class="co-sub">4 KOMPONEN TERDETEKSI</div>
+    </div>
+  </div>
+
+  <!-- status panel -->
+  <div class="status-panel" id="statusPanel">
+    <div class="scanning-msg" id="scanMsg">🤖 AI sedang menganalisis komponen makanan...</div>
+
+    <!-- detected chips -->
+    <div id="chipsSection" class="hidden">
+      <div class="section-label">Komponen Terdeteksi</div>
+      <div class="chips" id="chipContainer"></div>
+    </div>
+
+    <div class="divider hidden" id="div1"></div>
+
+    <!-- AI caption -->
+    <div id="captionSection" class="hidden">
+      <div class="section-label">✨ Analisis AI</div>
+      <div class="caption-text" id="captionText"></div>
+    </div>
+
+    <div class="divider hidden" id="div2"></div>
+
+    <!-- gizi bars -->
+    <div id="giziSection" class="hidden">
+      <div class="section-label">Kelengkapan Gizi</div>
+      <div class="gizi-row" id="giziContainer"></div>
+    </div>
+
+    <div class="divider hidden" id="div3"></div>
+
+    <!-- score -->
+    <div id="scoreSection" class="hidden">
+      <div class="score-badge">
+        <div>
+          <div class="score-label">Skor Kelengkapan</div>
+          <div class="score-sub">dari 5 komponen standar MBG</div>
+        </div>
+        <div class="score-value">4/5</div>
+      </div>
+    </div>
+
+    <!-- warning -->
+    <div id="warnSection" class="hidden">
+      <div class="warn-bar">
+        <span style="font-size:18px">⚠️</span>
+        <div class="warn-text">Susu/Dairy belum terdeteksi dalam menu ini</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- buttons -->
+  <button class="btn-primary" id="btnMain" disabled>⏳  Memindai Menu...</button>
+  <button class="btn-secondary hidden" id="btnReset" onclick="resetApp()">↺  Ambil Foto Lagi</button>
+
+  <div class="privacy">
+    🔒 Privasi terjamin · Tidak ada nama atau NIK dikumpulkan<br>GPS hanya dicek saat submit
+  </div>
+</div>
+
+<script>
+  /* ── data ── */
+  const FOODS = [
+    { id:'nasi',  label:'Nasi',        emoji:'🍚', pct:97, x:13, y:16, w:31, h:33, color:'#f59e0b', gizi:'Karbohidrat' },
+    { id:'ayam',  label:'Ayam',        emoji:'🍗', pct:93, x:52, y:13, w:29, h:31, color:'#ef4444', gizi:'Protein'      },
+    { id:'sayur', label:'Sayur Bayam', emoji:'🥬', pct:88, x:19, y:58, w:27, h:27, color:'#22c55e', gizi:'Sayuran'     },
+    { id:'jeruk', label:'Buah Jeruk',  emoji:'🍊', pct:91, x:60, y:55, w:22, h:25, color:'#f97316', gizi:'Buah'        },
+  ];
+
+  const GIZI = [
+    { label:'Karbohidrat', pct:100, color:'#f59e0b' },
+    { label:'Protein',     pct:100, color:'#ef4444' },
+    { label:'Sayuran',     pct:100, color:'#22c55e' },
+    { label:'Buah',        pct:100, color:'#f97316' },
+    { label:'Susu/Dairy',  pct:0,   color:'#94a3b8' },
+  ];
+
+  const CAPTION = 'Menu lengkap: nasi, protein hewani, sayuran hijau, dan buah. Komponen susu/dairy belum terdeteksi.';
+
+  /* ── state ── */
+  let phase = 'scanning';
+  let scanY  = 0;
+  let scanRAF;
+
+  /* ── init ── */
+  document.getElementById('hudDate').textContent =
+    'MBG · ' + new Date().toLocaleDateString('id-ID');
+
+  /* ── scanning animation ── */
+  function animateScan() {
+    scanY = (scanY + 1.5) % 100;
+    document.getElementById('scanLine').style.top = scanY + '%';
+    scanRAF = requestAnimationFrame(animateScan);
+  }
+  animateScan();
+
+  setTimeout(() => {
+    cancelAnimationFrame(scanRAF);
+    document.getElementById('scanLine').style.display = 'none';
+    document.getElementById('scanLabel').style.display = 'none';
+    startDetection();
+  }, 2700);
+
+  /* ── detection phase ── */
+  function startDetection() {
+    phase = 'detected';
+    document.getElementById('scanMsg').classList.add('hidden');
+    document.getElementById('chipsSection').classList.remove('hidden');
+    document.getElementById('div1').classList.remove('hidden');
+    document.getElementById('captionSection').classList.remove('hidden');
+
+    const boxLayer = document.getElementById('boxLayer');
+    const chipContainer = document.getElementById('chipContainer');
+
+    FOODS.forEach((f, i) => {
+      setTimeout(() => {
+        /* box */
+        const box = document.createElement('div');
+        box.className = 'det-box';
+        box.style.cssText = `
+          left:${f.x}%; top:${f.y}%; width:${f.w}%; height:${f.h}%;
+          border-color:${f.color};
+          box-shadow: 0 0 12px ${f.color}55;
+          background: ${f.color}0d;
+        `;
+        box.innerHTML = `
+          <span class="det-label" style="background:${f.color}">${f.emoji} ${f.label}</span>
+          <span class="det-conf" style="color:${f.color}">${f.pct}%</span>
+        `;
+        box.onclick = () => box.style.background =
+          box.style.background.includes('22') ? `${f.color}0d` : `${f.color}22`;
+        boxLayer.appendChild(box);
+
+        /* chip */
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.style.cssText = `
+          border-color:${f.color}88; color:${f.color}; background:${f.color}12;
+          animation-delay:${i*0.08}s;
+        `;
+        chip.textContent = f.emoji + ' ' + f.label;
+        chipContainer.appendChild(chip);
+
+        /* after last box, start typing */
+        if (i === FOODS.length - 1) {
+          setTimeout(startTyping, 450);
+        }
+      }, i * 290);
+    });
+  }
+
+  /* ── typing caption ── */
+  function startTyping() {
+    const el = document.getElementById('captionText');
+    let i = 0;
+    el.innerHTML = '<span class="cursor"></span>';
+
+    const t = setInterval(() => {
+      i++;
+      el.innerHTML = CAPTION.slice(0, i) + '<span class="cursor"></span>';
+      if (i >= CAPTION.length) {
+        clearInterval(t);
+        el.innerHTML = CAPTION;
+        showGizi();
+      }
+    }, 22);
+  }
+
+  /* ── gizi bars ── */
+  function showGizi() {
+    ['div2','giziSection','div3','scoreSection','warnSection'].forEach(id =>
+      document.getElementById(id).classList.remove('hidden')
+    );
+
+    const container = document.getElementById('giziContainer');
+    GIZI.forEach((g, i) => {
+      const row = document.createElement('div');
+      row.className = 'gizi-item';
+      row.innerHTML = `
+        <span class="gizi-name">${g.label}</span>
+        <div class="gizi-track">
+          <div class="gizi-fill" id="gf${i}" style="background:${g.pct > 0 ? g.color : '#e2e8f0'}"></div>
+        </div>
+        <span class="gizi-status">${g.pct > 0 ? '✅' : '❌'}</span>
+      `;
+      container.appendChild(row);
+    });
+
+    /* trigger bar animation next frame */
+    requestAnimationFrame(() => {
+      GIZI.forEach((g, i) => {
+        setTimeout(() => {
+          document.getElementById('gf'+i).style.width = g.pct + '%';
+        }, i * 120);
+      });
+    });
+
+    /* enable capture button */
+    const btn = document.getElementById('btnMain');
+    btn.disabled = false;
+    btn.textContent = '📸  Kirim Laporan MBG';
+    btn.onclick = doCapture;
+  }
+
+  /* ── capture ── */
+  function doCapture() {
+    const frame = document.getElementById('camFrame');
+    const flashEl = document.createElement('div');
+    flashEl.className = 'flash';
+    frame.appendChild(flashEl);
+    setTimeout(() => flashEl.remove(), 420);
+
+    setTimeout(() => {
+      document.getElementById('confirmedOverlay').classList.remove('hidden');
+      phase = 'confirmed';
+
+      const btn = document.getElementById('btnMain');
+      btn.textContent = '✉️  Lihat Riwayat Laporan';
+      btn.onclick = null;
+
+      document.getElementById('btnReset').classList.remove('hidden');
+    }, 380);
+  }
+
+  /* ── reset ── */
+  function resetApp() {
+    /* clear state */
+    document.getElementById('boxLayer').innerHTML = '';
+    document.getElementById('chipContainer').innerHTML = '';
+    document.getElementById('giziContainer').innerHTML = '';
+    document.getElementById('captionText').textContent = '';
+    document.getElementById('confirmedOverlay').classList.add('hidden');
+    document.getElementById('scanLine').style.display = '';
+    document.getElementById('scanLabel').style.display = '';
+    document.getElementById('scanMsg').classList.remove('hidden');
+
+    ['chipsSection','div1','captionSection','div2','giziSection','div3','scoreSection','warnSection'].forEach(id =>
+      document.getElementById(id).classList.add('hidden')
+    );
+
+    const btn = document.getElementById('btnMain');
+    btn.disabled = true;
+    btn.textContent = '⏳  Memindai Menu...';
+    btn.onclick = null;
+    document.getElementById('btnReset').classList.add('hidden');
+
+    /* restart scan */
+    phase = 'scanning'; scanY = 0;
+    animateScan();
+    setTimeout(() => {
+      cancelAnimationFrame(scanRAF);
+      document.getElementById('scanLine').style.display = 'none';
+      document.getElementById('scanLabel').style.display = 'none';
+      startDetection();
+    }, 2700);
+  }
+</script>
+</body>
+</html>
