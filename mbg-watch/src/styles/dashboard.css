@@ -1,0 +1,374 @@
+/* ─────────────────────────────────────────────────────────
+   dashboard.css — stats, tables, status badges, charts,
+   verification cards, notifications, blockchain items,
+   welcome banner, kebijakan cards.
+   ───────────────────────────────────────────────────────── */
+
+/* ── Stat cards ── */
+.stat-row {
+  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 1.75rem;
+  display: grid;
+}
+.stat-card {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.25rem;
+}
+.stat-num {
+  color: var(--g-deep);
+  font-family: "Syne", sans-serif;
+  font-size: 1.85rem;
+  font-weight: 800;
+}
+.stat-label {
+  color: var(--muted);
+  margin-top: 0.15rem;
+  font-size: 0.74rem;
+}
+
+/* ── Tables ── */
+.table-wrap {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 14px;
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+}
+.table-header {
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  display: flex;
+}
+.table-header h3 {
+  color: var(--g-deep);
+  font-family: "Syne", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.table-responsive {
+  overflow-x: auto;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+th {
+  background: var(--g-pale);
+  text-align: left;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+td {
+  color: var(--ink);
+  vertical-align: middle;
+  border-top: 1px solid #f0fdf4;
+  padding: 0.8rem 0.9rem;
+  font-size: 0.82rem;
+}
+tr:hover td {
+  background: #f8fef9;
+}
+
+/* ── Status badges ── */
+.status-badge {
+  white-space: nowrap;
+  border-radius: 100px;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.22rem 0.65rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: inline-flex;
+}
+.status-pending {
+  background: var(--amber-lt);
+  color: #92400e;
+}
+.status-verified {
+  background: var(--blue-lt);
+  color: #1e40af;
+}
+.status-done {
+  background: var(--g-pale);
+  color: var(--g-mid);
+}
+.status-rejected {
+  background: var(--red-lt);
+  color: #991b1b;
+}
+.id-badge {
+  background: var(--g-pale);
+  color: var(--g-mid);
+  border-radius: 5px;
+  padding: 0.15rem 0.45rem;
+  font-family: monospace;
+  font-size: 0.66rem;
+  font-weight: 600;
+}
+
+/* ── GPS badge ── */
+.gps-badge {
+  color: #1e40af;
+  background: #dbeafe;
+  border: 1px solid #93c5fd;
+  border-radius: 8px;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: inline-flex;
+}
+
+/* ── Welcome banner ── */
+.welcome-banner {
+  background: linear-gradient(135deg, var(--g-deep), #0a4d2a);
+  color: #fff;
+  border-radius: 18px;
+  margin-bottom: 1.75rem;
+  padding: 1.75rem 2rem;
+}
+.welcome-banner h2 {
+  margin-bottom: 0.25rem;
+  font-family: "Syne", sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+.welcome-banner p {
+  color: #ffffff8c;
+  font-size: 0.84rem;
+  font-weight: 300;
+}
+
+/* ── Verification cards (Pemkot) ── */
+.verif-card {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 14px;
+  margin-bottom: 0.85rem;
+  padding: 1.25rem;
+}
+.verif-card h4 {
+  color: var(--g-deep);
+  margin-bottom: 0.3rem;
+  font-family: "Syne", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.verif-meta {
+  color: var(--muted);
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-bottom: 0.65rem;
+  font-size: 0.74rem;
+  display: flex;
+}
+.verif-desc {
+  color: var(--ink);
+  margin-bottom: 0.85rem;
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+.verif-actions {
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  display: flex;
+}
+
+/* ── Notifications ── */
+.notif-item {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--g-bright);
+  background: #fff;
+  border-radius: 0 10px 10px 0;
+  margin-bottom: 0.65rem;
+  padding: 0.9rem 1.1rem;
+}
+.notif-item.unread {
+  background: var(--g-pale);
+}
+.notif-item.amber {
+  border-left-color: var(--amber);
+}
+.notif-item.red {
+  border-left-color: var(--red);
+}
+.notif-item h4 {
+  margin-bottom: 0.2rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+.notif-item p {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+/* ── Blockchain ── */
+.chain-item {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 10px;
+  align-items: flex-start;
+  gap: 0.85rem;
+  margin-bottom: 0.65rem;
+  padding: 0.9rem 1.1rem;
+  display: flex;
+}
+.chain-hash {
+  color: var(--g-mid);
+  background: var(--g-pale);
+  word-break: break-all;
+  border-radius: 5px;
+  padding: 0.15rem 0.45rem;
+  font-family: monospace;
+  font-size: 0.67rem;
+}
+
+/* ── Charts ── */
+.chart-wrap {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 14px;
+  margin-bottom: 1.25rem;
+  padding: 1.25rem;
+}
+.chart-title {
+  color: var(--g-deep);
+  margin-bottom: 1rem;
+  font-family: "Syne", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+.bar-chart {
+  flex-direction: column;
+  gap: 0.6rem;
+  display: flex;
+}
+.bar-row {
+  align-items: center;
+  gap: 0.85rem;
+  display: flex;
+}
+.bar-label {
+  width: 135px;
+  color: var(--muted);
+  text-align: right;
+  flex-shrink: 0;
+  font-size: 0.72rem;
+}
+.bar-track {
+  background: var(--g-pale);
+  border-radius: 6px;
+  flex: 1;
+  height: 24px;
+  overflow: hidden;
+}
+.bar-fill {
+  background: linear-gradient(90deg, var(--g-mid), var(--g-bright));
+  color: #fff;
+  border-radius: 6px;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100%;
+  padding-right: 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+  display: flex;
+}
+
+/* ── Kredensial badges (SPPG quality) ── */
+.kred-tinggi {
+  color: #166534;
+  background: #dcfce7;
+  border: 1px solid #86efac;
+  border-radius: 6px;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: inline-flex;
+}
+.kred-sedang {
+  color: #92400e;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 6px;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: inline-flex;
+}
+.kred-rendah {
+  color: #991b1b;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: inline-flex;
+}
+
+/* ── Kebijakan cards ── */
+.kebijakan-card {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 14px;
+  margin-bottom: 0.85rem;
+  padding: 1.25rem;
+}
+.kebijakan-card h4 {
+  color: var(--g-deep);
+  margin-bottom: 0.5rem;
+  font-family: "Syne", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.priority-badge {
+  border-radius: 100px;
+  padding: 0.18rem 0.6rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: inline-block;
+}
+.priority-tinggi {
+  background: var(--red-lt);
+  color: #991b1b;
+}
+.priority-sedang {
+  background: var(--amber-lt);
+  color: #92400e;
+}
+
+/* ── Progress bar (shared by dashboards / SPPG) ── */
+.progress-bar {
+  background: var(--border);
+  border-radius: 100px;
+  height: 6px;
+  margin: 0.75rem 0;
+  overflow: hidden;
+}
+.progress-fill {
+  background: linear-gradient(90deg, var(--g-mid), var(--g-bright));
+  border-radius: 100px;
+  height: 100%;
+  transition: width 0.4s;
+}
