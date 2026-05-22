@@ -1,0 +1,44 @@
+/* ─────────────────────────────────────────────────────────
+   responsive.css — mobile/tablet adaptations.
+   ───────────────────────────────────────────────────────── */
+
+/* Helper used by Sidebar mobile header */
+.mobile-only-flex {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+    display: flex;
+  }
+  .sidebar {
+    transform: translate(-260px);
+  }
+  .sidebar.open {
+    transform: translate(0);
+  }
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
+    padding-top: 4.5rem;
+  }
+  .land-nav {
+    padding: 0.85rem 1rem;
+  }
+  .stat-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .portal-grid,
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  .mobile-only-flex {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .stat-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}

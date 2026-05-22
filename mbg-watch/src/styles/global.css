@@ -1,0 +1,114 @@
+/* ─────────────────────────────────────────────────────────
+   global.css — base reset, design tokens, typography,
+   global animations, and scrollbars.
+   ───────────────────────────────────────────────────────── */
+
+@import "https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap";
+
+*,
+:before,
+:after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --g-deep: #0a3622;
+  --g-mid: #166534;
+  --g-bright: #22c55e;
+  --g-light: #bbf7d0;
+  --g-pale: #f0fdf4;
+  --amber: #f59e0b;
+  --amber-lt: #fef3c7;
+  --red: #ef4444;
+  --red-lt: #fee2e2;
+  --blue: #3b82f6;
+  --blue-lt: #dbeafe;
+  --cream: #fafaf7;
+  --ink: #0f1a0f;
+  --muted: #4b6c52;
+  --border: #d1fae5;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: "DM Sans", sans-serif;
+  overflow-x: hidden;
+}
+
+h1 {
+  color: var(--g-deep);
+  margin-bottom: 1.2rem;
+  font-family: "Syne", sans-serif;
+  font-size: clamp(2.2rem, 5.5vw, 5rem);
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.accent {
+  color: var(--g-bright);
+}
+
+/* ── Global animations used by multiple components ── */
+@keyframes pulse {
+  0%,
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.4);
+  }
+}
+
+@keyframes slideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toastIn {
+  0% {
+    opacity: 0;
+    transform: translate(36px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.dot {
+  background: var(--g-bright);
+  border-radius: 50%;
+  width: 6px;
+  height: 6px;
+  animation: 2s infinite pulse;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 100px;
+}

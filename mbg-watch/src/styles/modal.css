@@ -1,0 +1,143 @@
+/* ─────────────────────────────────────────────────────────
+   modal.css — modal overlay, modal box, modal close,
+   foto lightbox, toast notifications.
+   ───────────────────────────────────────────────────────── */
+
+/* ── Modal overlay ── */
+.modal-overlay {
+  backdrop-filter: blur(8px);
+  z-index: 200;
+  background: #0a362280;
+  place-items: center;
+  padding: 1rem;
+  display: none;
+  position: fixed;
+  inset: 0;
+}
+.modal-overlay.open {
+  display: grid;
+}
+.modal {
+  background: #fff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 440px;
+  max-height: 90vh;
+  padding: 2rem;
+  animation: 0.3s slideUp;
+  position: relative;
+  overflow-y: auto;
+}
+.modal-close {
+  background: var(--g-pale);
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  color: var(--muted);
+  border: none;
+  border-radius: 50%;
+  place-items: center;
+  font-size: 1rem;
+  display: grid;
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+}
+.modal h2 {
+  color: var(--g-deep);
+  margin-bottom: 0.3rem;
+  font-family: "Syne", sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+.modal-sub {
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+  font-size: 0.82rem;
+}
+
+/* ── Lightbox ── */
+.foto-lightbox {
+  z-index: 600;
+  background: #000000e0;
+  place-items: center;
+  padding: 1rem;
+  display: none;
+  position: fixed;
+  inset: 0;
+}
+.foto-lightbox.open {
+  display: grid;
+}
+.foto-lightbox img {
+  object-fit: contain;
+  border-radius: 12px;
+  max-width: 92vw;
+  max-height: 88vh;
+}
+.foto-lightbox-close {
+  color: #fff;
+  cursor: pointer;
+  background: #ffffff1f;
+  border: none;
+  border-radius: 50%;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  font-size: 1.3rem;
+  display: grid;
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+}
+.lb-caption {
+  color: #fff;
+  white-space: nowrap;
+  background: #00000080;
+  border-radius: 100px;
+  padding: 0.4rem 1rem;
+  font-size: 0.78rem;
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translate(-50%);
+}
+
+/* ── Toast ── */
+.toast-container {
+  z-index: 999;
+  pointer-events: none;
+  flex-direction: column;
+  gap: 0.6rem;
+  display: flex;
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+}
+.toast {
+  border: 1px solid var(--border);
+  pointer-events: all;
+  background: #fff;
+  border-radius: 12px;
+  align-items: flex-start;
+  gap: 0.65rem;
+  max-width: 320px;
+  padding: 0.85rem 1rem;
+  animation: 0.3s toastIn;
+  display: flex;
+  box-shadow: 0 6px 28px #0000001f;
+}
+.toast-icon {
+  flex-shrink: 0;
+  font-size: 1.2rem;
+}
+.toast-body strong {
+  color: var(--ink);
+  margin-bottom: 0.1rem;
+  font-size: 0.84rem;
+  display: block;
+}
+.toast-body span {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
